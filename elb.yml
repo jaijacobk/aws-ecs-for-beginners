@@ -1,0 +1,163 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  The Hello World ELB Repo
+
+Parameters:
+  orgUnit:
+    Type: String
+    Default: jj7525 ##[edit this]change orgUnit as employee id to make the ELB Unique
+  envType:
+    Type: String
+    Default: dev
+  appCode:
+    Type: String
+    Default: hworld
+  ServiceName:
+    Type: String
+    Default: ecs-hworld-service
+  ContainerPort:
+    Type: Number
+    Default: 8080
+  LoadBalancerPort:
+    Type: Number
+    Default: 80 # 443 #[edit this]
+  HealthCheckPath:
+    Type: String
+    Default: /healthcheck
+  # HWDomain:
+  #   Type: String
+  #   Default: jj7525-s.bindg.com
+  # SslCert:
+  #   Type: String
+  #   Default: arn:aws:acm:us-east-1:417592845839:certificate/6e039166-6b4f-468f-9fd5-840a9f87bfd5 #[edit this]
+
+# Conditions:
+#   IsEast: !Equals [!Ref "AWS::Region", "us-east-1"]
+
+Resources:
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      LoadBalancerAttributes:
+        # this is the default, but is specified here in case it needs to be changed
+        - Key: idle_timeout.timeout_seconds
+          Value: "60"
+      Name: !Join ["-", [!Ref orgUnit, !Ref ServiceName, elb]]
+      # Scheme: internal
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref LoadBalancerSecurityGroup
+      Subnets:
+        - !ImportValue inf-PublicSubnet1
+        - !ImportValue inf-PublicSubnet2
+        - !ImportValue inf-PublicSubnet3
+
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${orgUnit}-ecs-${envType}-${appCode}-lb-sec-group
+      VpcId: !ImportValue inf-vpc
+      # SecurityGroupEgress: #An outbound rule permits instances to send traffic to the specified destination IPv4 or IPv6 CIDR address ranges
+      #   - IpProtocol: "-1"
+      #     CidrIp: 0.0.0.0/0
+      #     Description: no outbound and it is not ncessary
+      SecurityGroupIngress: #An inbound rule permits instances to receive traffic from the specified IPv4 or IPv6 CIDR address range
+        - IpProtocol: tcp
+          FromPort: !Ref LoadBalancerPort
+          ToPort: !Ref LoadBalancerPort
+          CidrIp: 0.0.0.0/0
+          Description: "Everything within the VPC/Datacenters/VPN"
+
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub ${orgUnit}-ecs-${envType}-${appCode}-cont-sec-group
+      VpcId: !ImportValue inf-vpc
+      # SecurityGroupEgress:
+      #   - IpProtocol: "-1"
+      #     CidrIp: 0.0.0.0/0
+      #     Description: allow access to onpremise servers
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref ContainerPort
+          ToPort: !Ref ContainerPort
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+          Description: LoadBalancer SG
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: !Ref LoadBalancerPort
+      Protocol: HTTP #HTTPS  #[edit this]
+      # SslPolicy: "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+      # Certificates:
+      #   - CertificateArn: !Ref SslCert
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      #The approximate amount of time, in seconds, between health checks of an individual target
+      HealthCheckIntervalSeconds: 10
+      # will look for a 200 status code by default unless specified otherwise
+      HealthCheckPath: !Ref HealthCheckPath
+      #The amount of time, in seconds, during which no response from a target means a failed health check
+      HealthCheckTimeoutSeconds: 5
+      #The number of consecutive health check failures required before considering a target unhealthy
+      UnhealthyThresholdCount: 2
+      #The number of consecutive health checks successes required before considering an unhealthy target healthy
+      HealthyThresholdCount: 2
+      Name: !Join ["", [!Ref ServiceName, TargetGroup]]
+      Port: !Ref ContainerPort
+      Protocol: HTTP
+      TargetGroupAttributes:
+        #The amount of time, in seconds, for Elastic Load Balancing to wait before changing the state of a deregistering target from draining to unused
+        - Key: deregistration_delay.timeout_seconds
+          Value: "60" # default is 300
+      TargetType: ip
+      VpcId: !ImportValue inf-vpc
+
+  # DNSRecord:
+  #   Type: AWS::Route53::RecordSet
+  #   Properties:
+  #     HostedZoneName: !Join ["", [!Ref HWDomain, .]] #Specify either HostedZoneName or HostedZoneId
+  #     Name: !Join ["", [!Ref HWDomain, .]]
+  #     Type: A
+  #     AliasTarget:
+  #       DNSName: !GetAtt LoadBalancer.DNSName
+  #       HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+  #       EvaluateTargetHealth: true
+  #     SetIdentifier: !Sub ${orgUnit}-${appCode}-rt53-${envType}-${AWS::Region}
+  #     #For one resource record set, you specify PRIMARY as the value for Failover; for the other resource record set, you specify SECONDARY
+  #     Failover: !If [IsEast, PRIMARY, SECONDARY]
+
+Outputs:
+  ElbDns:
+    Description: Domain name for the elb
+    Value: !GetAtt LoadBalancer.DNSName
+    Export:
+      Name: !Join [":", [!Ref envType, ElbDomianName]]
+  ElbListener:
+    Description: elb listener
+    Value: !Ref LoadBalancerListener
+    Export:
+      Name: !Join [":", [!Ref envType, ElbListener]]
+  TargetGroupArn:
+    Description: target group arn
+    Value: !Ref TargetGroup
+    Export:
+      Name: !Join [":", [!Ref envType, TargetGroupArn]]
+  ElbSecGroup:
+    Description: Loadbalancer security group
+    Value: !Ref LoadBalancerSecurityGroup
+    Export:
+      Name: !Join [":", [!Ref envType, ElbSecurityGroup]]
+  ContainerSecGroup:
+    Description: Container security group
+    Value: !Ref ContainerSecurityGroup
+    Export:
+      Name: !Join [":", [!Ref envType, ContainerSecurityGroup]]

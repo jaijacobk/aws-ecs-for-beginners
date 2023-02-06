@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  The Hello World Zone and SSL Cert Repo
+
+Parameters:
+  envType:
+    Type: String
+    Default: dev
+  HWDomain:
+    Type: String
+    Default: jj7525-s.bindg.com ###[edit this] use your employee id to make the domain name unique
+
+Resources:
+  HWDomainHostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: !Ref HWDomain
+      HostedZoneConfig:
+        Comment: !Sub hosted zone for ${HWDomain} API
+
+  SSLcert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref HWDomain
+      DomainValidationOptions:
+        - DomainName: !Ref HWDomain
+          HostedZoneId: !Ref HWDomainHostedZone
+      ValidationMethod: DNS
+      Tags:
+        - Key: Name
+          Value: !Ref HWDomain
+
+Outputs:
+  HWDomainHostedZoneID:
+    Description: the hosted zone
+    Value: !Ref HWDomainHostedZone
+    Export:
+      Name: !Join [":", [!Ref envType, HWDomainHostedZone]]
+
+  SSLcertInfo:
+    Description: the ssl cert
+    Value: !Ref SSLcert
+    Export:
+      Name: !Join [":", [!Ref envType, SSLcert]]

@@ -1,0 +1,187 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  The Hello World ECS Repo
+
+Parameters:
+  orgUnit:
+    Type: String
+    Default: jj7525 ## change orgUnit as employee id to make the ECS cluster Unique
+  envType:
+    Type: String
+    Default: dev
+  appCode:
+    Type: String
+    Default: hworld
+  ServiceName:
+    Type: String
+    Default: ecs-hworld-service
+  ContainerPort:
+    Type: Number
+    Default: 8080
+  # MinContainers:
+  #   Type: Number
+  #   Default: 5
+  # # for autoscaling
+  # MaxContainers:
+  #   Type: Number
+  #   Default: 10
+  # # target CPU utilization (%)
+  # AutoScalingTargetValue:
+  #   Type: Number
+  #   Default: 50
+  ImageId:
+    Type: String
+    Default: 417592845839.dkr.ecr.us-east-1.amazonaws.com/jj7525-ecr-dev-hworld-repo:latest #[edit this]
+  TargetGroup:
+    Type: String
+    Default: arn:aws:elasticloadbalancing:us-east-1:417592845839:targetgroup/ecs-hworld-serviceTargetGroup/c4d3994cf0717673 #[edit this]
+  LoadBalancerSecurityGroup:
+    Type: String
+    Default: sg-0ccf26c8cc63a6e92 #[edit this]
+  ContainerSecurityGroup:
+    Type: String
+    Default: sg-08275c13882c7b33e #[edit this]
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub ${orgUnit}-ecs-${envType}-${appCode}-cluster
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${orgUnit}-ecs-${envType}-log-group
+
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Ref ServiceName
+      Cluster: !Ref Cluster
+      TaskDefinition: !Ref TaskDefinition
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+      DesiredCount: 2
+      # This may need to be adjusted if the container takes a while to start up
+      HealthCheckGracePeriodSeconds: 30
+      LaunchType: FARGATE
+      # The Fargate launch type can be used to run your containerized applications without the need to provision and manage the backend infrastructure.
+      #     AWS Fargate is the serverless way to host your Amazon ECS workload
+      # The EC2 launch type can be used to run your containerized applications on Amazon EC2 instances that you
+      #   register to your Amazon ECS cluster and manage yourself.
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          # must be DISABLED if you're using private subnets that have access to a NAT gateway
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !ImportValue inf-PrivateSubnet1
+            - !ImportValue inf-PrivateSubnet2
+            - !ImportValue inf-PrivateSubnet3
+          SecurityGroups:
+            - !Ref ContainerSecurityGroup
+      LoadBalancers:
+        - ContainerName: !Ref ServiceName
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref TargetGroup
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      # Name of the task definition. Subsequent versions of the task definition are grouped together under this name.
+      Family: !Sub ${orgUnit}-ecs-${envType}-${appCode}-task-definition
+      # The valid values are none, bridge, awsvpc, and host. The default Docker network mode is bridge.
+      # If you are using the Fargate launch type, the awsvpc network mode is required
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        #Allows to run containers without having to manage servers or clusters of Amazon EC2 instances
+        - FARGATE
+      # 256 (.25 vCPU) - Available memory values: 0.5GB, 1GB, 2GB
+      # 512 (.5 vCPU) - Available memory values: 1GB, 2GB, 3GB, 4GB
+      # 1024 (1 vCPU) - Available memory values: 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB
+      # 2048 (2 vCPU) - Available memory values: Between 4GB and 16GB in 1GB increments
+      # 4096 (4 vCPU) - Available memory values: Between 8GB and 30GB in 1GB increments
+      Cpu: "512"
+      # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+      # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+      # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+      # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+      # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+      Memory: 2GB
+      # A role needed by ECS.
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that grants containers in the task permission to call AWS APIs on your behalf."
+      # TaskRoleArn: !Ref ECSTaskRole
+      ContainerDefinitions:
+        - Name: !Ref ServiceName
+          # Environment:
+          #   - AWS_REGION: !Ref AWS::Region
+          Image: !Ref ImageId
+          PortMappings:
+            - ContainerPort: !Ref ContainerPort
+              HostPort: !Ref ContainerPort
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: ecs
+
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${orgUnit}-iam-${envType}-${appCode}-${AWS::Region}-ecs-task-exe-role
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: !Sub ${orgUnit}-iam-${envType}-${appCode}-ecs-task-exe-policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogStreams
+                  - logs:DescribeLogGroup
+                  - logs:PutLogEvents
+                  - logs:PutRetentionPolicy
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                Resource:
+                  - !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:*
+                  - !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:*:log-stream:*
+
+  # AutoScalingTarget:
+  #   Type: AWS::ApplicationAutoScaling::ScalableTarget
+  #   Properties:
+  #     #The minimum value that you plan to scale in to. When a scaling policy is in effect, Application Auto Scaling can scale in (contract) as needed to the minimum capacity limit in response to changing demand.
+  #     MinCapacity: !Ref MinContainers
+  #     #The maximum value that you plan to scale out to. When a scaling policy is in effect, Application Auto Scaling can scale out (expand) as needed to the maximum capacity limit in response to changing demand.
+  #     MaxCapacity: !Ref MaxContainers
+  #     ResourceId: !Join ["/", [service, !Ref Cluster, !GetAtt Service.Name]]
+  #     ScalableDimension: ecs:service:DesiredCount
+  #     ServiceNamespace: ecs
+  #     # "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that allows Application Auto Scaling to modify your scalable target."
+  #     RoleARN: !Ref ECSAutoScalingRole
+
+  # AutoScalingPolicy:
+  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  #   Properties:
+  #     PolicyName: !Join ["", [!Ref ServiceName, AutoScalingPolicy]]
+  #     PolicyType: TargetTrackingScaling
+  #     ScalingTargetId: !Ref AutoScalingTarget
+  #     TargetTrackingScalingPolicyConfiguration:
+  #       PredefinedMetricSpecification:
+  #         PredefinedMetricType: ECSServiceAverageCPUUtilization #there are several other types available
+  #       ScaleInCooldown: 10 #The amount of time, in seconds, after a scale-in activity completes before another scale-in activity can start.
+  #       ScaleOutCooldown: 10 #The amount of time, in seconds, to wait for a previous scale-out activity to take effect.
+  #       # Keep things at or lower than 50% CPU utilization, for example
+  #       TargetValue: !Ref AutoScalingTargetValue

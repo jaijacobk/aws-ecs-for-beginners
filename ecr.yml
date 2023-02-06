@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  The Hello World ECR Repo
+Parameters:
+  orgUnit:
+    Type: String
+    Default: jj7525 ##[edit this] change orgUnit as employee id to make the ECR Registry Unique
+  envType:
+    Type: String
+    Default: dev
+  appCode:
+    Type: String
+    Default: hworld
+
+Resources:
+  HWorldEcrRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub ${orgUnit}-ecr-${envType}-${appCode}-repo
+
+Outputs:
+  HWorldEcrRepoArn:
+    Value: !GetAtt HWorldEcrRepo.Arn
+    Export:
+      Name: HWorldEcrRepoArn
