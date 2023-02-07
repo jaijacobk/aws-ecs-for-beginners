@@ -1,31 +1,30 @@
-# Elastic Container Services (Build you first ECS Cluster with )
+# Build your first ECS (Fargate) Application
 
 AWS Fargate is a technology that you can use with Amazon ECS to run containers without having to manage servers or clusters of Amazon EC2 instances. With Fargate, you no longer have to provision, configure, or scale clusters of virtual machines to run containers. This removes the need to choose server types, decide when to scale your clusters, or optimize cluster packing.
+
+This project describes the different components reuired to build an ECS solution. Please follow the below step by step instructions to create one.
 
 ![Screenshot](images/ecs_1.jpeg)
 
 
-This project describes the different components reuired to build an ECS service
-
-### Step 1: (Build the stack-infra in both regions)
+### Step 1: Create working a directory
 
 ```
 mkdir my-first-ecs-project
 cd  my-first-ecs-project
 ```
 
-**- CREATE A NODE PROJECT WITH THE DEFAULTS**
+### Step 2: Create a Node Js Project with all the defaults
 
 `npm init -y`
 
-**- CRETAE AN EXPRESS SERVER**
+### Step 3: Create an Express Server
 
 ```
 npm install express -save
 npm install
 ```
-
-**- CREATE A server.js FILE AND ADD THE FOLLOWING**
+### Step 4: Create a server.js file and update it with the following
 
 ```
 const express = require('express');
@@ -37,8 +36,7 @@ app.listen(8080, () => {
 });
 ```
 
-**- START THE SERVER**
-
+### Step 5: Start the Server
 `node server.js`
 
 You may do the following to release the port if the port 8080 is already in use
@@ -48,11 +46,9 @@ sudo lsof -i :8080
 sudo kill -9 PID
 ```
 
-**- TRY LOCALHOST**
-
 http://localhost:8080/
 
-**- NOW ADD A GET AND A HEALTHCHECK END POINT IN THE server.js**
+### Step 6: Add a Healthcheck and an Get End Point
 
 ```
 app.get('/', async (req, res, next) => {
@@ -98,7 +94,6 @@ app.get('/healthcheck', async (req, res, next) => {
 });
 ```
 
-**- ACCESS THE above end points **
 
 http://localhost:8080/
 
