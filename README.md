@@ -48,7 +48,7 @@ sudo kill -9 PID
 
 http://localhost:8080/
 
-### Step 6: Add a Healthcheck and an Get End Point
+### Step 6: Add a Healthcheck and a Get End Point
 
 ```
 app.get('/', async (req, res, next) => {
@@ -99,13 +99,7 @@ http://localhost:8080/
 
 http://localhost:8080/heathcheck/
 
----
-
-      CREATE A DOCKER IMAGE
-
----
-
-**- CREATE A FILE CALLED Dockerfile and add the following (find the your version by node --version)**
+### Step 7: Create a file called Dockerfile and add the following (find the your version by node --version)
 
 ```
 FROM node:12.22.3
@@ -118,11 +112,11 @@ EXPOSE 8080
 CMD [ "npm", "start" ]
 ```
 
-**- NOW BUILD THE CONTAINER**
+### Step 8: Now Build the Container
 
 `docker build -t my-first-ecs-project .`
 
-**- NOW RUN THE IMAGE and access the end points via localhost**
+### Step 9: Now run the imaage and access end points via localhost**
 
 `docker run -p 8080:8080 -d my-first-ecs-project`
 
