@@ -155,7 +155,7 @@ This command retrieves and displays an authentication token using the GetAuthori
 
 ---
 
-      Create ELB, ECS Service/Task 
+      Create LOAD BALANCER, ECS Service/Tasks
 
 ---
 
@@ -165,9 +165,6 @@ This command retrieves and displays an authentication token using the GetAuthori
 
 ### Step 2: Create ECS Cluster, Services and Tasks
 
-Please Make sure to update the
-
-1. Image ID
 
 `aws cloudformation create-stack --stack-name demo-ecs-repo --template-body file://ecs.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
 
