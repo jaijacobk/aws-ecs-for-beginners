@@ -6,7 +6,7 @@ Description: >-
 Parameters:
   orgUnit:
     Type: String
-    Default: jj7525 ##[edit this]change orgUnit as employee id to make the ELB Unique
+    Default: demo
   envType:
     Type: String
     Default: dev

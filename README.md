@@ -2,10 +2,15 @@
 
 AWS Fargate is a technology that you can use with Amazon ECS to run containers without having to manage servers or clusters of Amazon EC2 instances. With Fargate, you no longer have to provision, configure, or scale clusters of virtual machines to run containers. This removes the need to choose server types, decide when to scale your clusters, or optimize cluster packing.
 
-This project describes the different components reuired to build an ECS solution. Please follow the below step by step instructions to create one.
+This project describes the required components to build a containerized applicattion with ECS. Please follow the below step by step instructions to create one.
 
 ![Screenshot](images/ecs_1.jpeg)
 
+---
+
+      Basic Infrastructure Setup
+
+---
 
 ### Step 1: Create working a directory
 
@@ -94,12 +99,17 @@ app.get('/healthcheck', async (req, res, next) => {
 });
 ```
 
-
 http://localhost:8080/
 
 http://localhost:8080/heathcheck/
 
-### Step 7: Create a file called Dockerfile and add the following (find the your version by node --version)
+---
+
+      Dockerize your Application
+
+---
+
+### Step 1: Create a file called Dockerfile and add the following (find the your version by node --version)
 
 ```
 FROM node:12.22.3
@@ -112,11 +122,11 @@ EXPOSE 8080
 CMD [ "npm", "start" ]
 ```
 
-### Step 8: Now Build the Container
+### Step 2: Now Build the Container
 
 `docker build -t my-first-ecs-project .`
 
-### Step 9: Now run the imaage and access end points via localhost**
+### Step 3: Now run the image and access end points via localhost
 
 `docker run -p 8080:8080 -d my-first-ecs-project`
 
@@ -130,29 +140,24 @@ http://localhost:8080/healthcheck/
 
 ---
 
-**- CREATE ECR**
+### Step 1: Create ECR (Elastic Container Registry)
 
-Please make sure to edit the
 
-1. OrgUnit
+`aws cloudformation create-stack --stack-name demo-ecr-repo --template-body file://ecr.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
 
-Then execute the following from the AWS CLI (please make sure to replace {jj7525} with your employee id or someother unique identifier)
+### Step 2: Tag the Image
 
-`aws cloudformation create-stack --stack-name jj7525-hello-world-ecr-repo --template-body file://ecr.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
+`docker image tag my-first-ecs-project:latest 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-repo:latest`
 
-**- TAG THE IMAGE**
-
-`docker image tag my-first-ecs-project:latest 417592845839.dkr.ecr.us-east-1.amazonaws.com/jj7525-ecr-dev-hworld-repo:latest`
-
-**- GET THE ECR CREDENTIALS**
+### Step 2: Get the ECR Credentials
 
 `aws ecr get-login-password --profile saml | docker login --username AWS --password-stdin 417592845839.dkr.ecr.us-east-1.amazonaws.com`
 
 This command retrieves and displays an authentication token using the GetAuthorizationToken API that you can use to authenticate to an Amazon ECR registry
 
-**- PUSH THE IMAGE TO ECR**
+### Step 2: Push the image to ECR
 
-`docker push 417592845839.dkr.ecr.us-east-1.amazonaws.com/jj7525-ecr-dev-hworld-repo:latest`
+`docker push 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-repo:latest`
 
 ---
 
@@ -160,18 +165,13 @@ This command retrieves and displays an authentication token using the GetAuthori
 
 ---
 
-**- CREATE LOAD BALANCER, LISTENER, CONTAINER SECURITY GROUP, LOAD BALANCER SECURITY GROUP ETC**
+### Step 1: Create Load Balancer, Listener and Container/ELB Security Groups etc
 
 Please make sure to edit the
 
-1. OrgUnit
-2. SSL Cert
+Execute the following from the AWS CLI (please make sure to replace {jj7525} with your employee id or someother unique identifier)
 
-Before creating the below stack
-
-Then execute the following from the AWS CLI (please make sure to replace {jj7525} with your employee id or someother unique identifier)
-
-`aws cloudformation create-stack --stack-name jj7525-hello-world-elb-repo --template-body file://elb.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
+`aws cloudformation create-stack --stack-name demo-elb-repo --template-body file://elb.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
 
 **- CREATE ECS CLUSTER, ECS SERVICE TASKS ETC**
 

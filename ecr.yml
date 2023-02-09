@@ -5,7 +5,7 @@ Description: >-
 Parameters:
   orgUnit:
     Type: String
-    Default: jj7525 ##[edit this] change orgUnit as employee id to make the ECR Registry Unique
+    Default: demo
   envType:
     Type: String
     Default: dev

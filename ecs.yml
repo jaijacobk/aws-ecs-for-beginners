@@ -6,7 +6,7 @@ Description: >-
 Parameters:
   orgUnit:
     Type: String
-    Default: jj7525 ## change orgUnit as employee id to make the ECS cluster Unique
+    Default: demo
   envType:
     Type: String
     Default: dev

@@ -9,7 +9,7 @@ Parameters:
     Default: dev
   HWDomain:
     Type: String
-    Default: jj7525-s.bindg.com ###[edit this] use your employee id to make the domain name unique
+    Default: demo-x.bindg.com 
 
 Resources:
   HWDomainHostedZone:
