@@ -1,0 +1,14 @@
+node_modules
+.project
+.history
+package-lock.json
+.vscode/launch.json
+events
+env
+.DS_Store
+coverage
+envs/env.json
+dist
+webpack-modules
+
+
