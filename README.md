@@ -99,7 +99,7 @@ http://localhost:8080/heathcheck/
 
 ---
 
-      Dockerize your Application
+      DOCKERIZE YOUR APPLICATION
 
 ---
 
@@ -130,7 +130,7 @@ http://localhost:8080/healthcheck/
 
 ---
 
-      Create AWS ECR And Push the Docker Image
+      CREATE AWS ECR AND PUSH THE ABOVE DOCKER IMAGE OF YOUR APPLICATION
 
 ---
 
