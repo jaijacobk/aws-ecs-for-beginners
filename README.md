@@ -109,7 +109,7 @@ http://localhost:8080/heathcheck/
 
 ---
 
-### Step 1: Create a file called Dockerfile and add the following (find the your version by node --version)
+### Step 1: Create the Dockerfile
 
 ```
 FROM node:12.22.3
@@ -126,7 +126,7 @@ CMD [ "npm", "start" ]
 
 `docker build -t my-first-ecs-project .`
 
-### Step 3: Now run the image and access end points via localhost
+### Step 3: Generate image and access the end points via localhost
 
 `docker run -p 8080:8080 -d my-first-ecs-project`
 
@@ -155,21 +155,17 @@ http://localhost:8080/healthcheck/
 
 This command retrieves and displays an authentication token using the GetAuthorizationToken API that you can use to authenticate to an Amazon ECR registry
 
-### Step 2: Push the image to ECR
+### Step 3: Push the image to ECR
 
 `docker push 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-repo:latest`
 
 ---
 
-      Create ELB, ECS Service/Task
+      Create ELB, ECS Service/Task 
 
 ---
 
 ### Step 1: Create Load Balancer, Listener and Container/ELB Security Groups etc
-
-Please make sure to edit the
-
-Execute the following from the AWS CLI (please make sure to replace {jj7525} with your employee id or someother unique identifier)
 
 `aws cloudformation create-stack --stack-name demo-elb-repo --template-body file://elb.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
 

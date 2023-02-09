@@ -135,29 +135,43 @@ Resources:
   #     #For one resource record set, you specify PRIMARY as the value for Failover; for the other resource record set, you specify SECONDARY
   #     Failover: !If [IsEast, PRIMARY, SECONDARY]
 
-Outputs:
   ElbDns:
-    Description: Domain name for the elb
-    Value: !GetAtt LoadBalancer.DNSName
-    Export:
-      Name: !Join [":", [!Ref envType, ElbDomianName]]
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /demo/elb/dns
+      Type: String
+      Value: !GetAtt LoadBalancer.DNSName
+      Description: !Join [":", [!Ref envType, ElbDomianName]]
+
   ElbListener:
-    Description: elb listener
-    Value: !Ref LoadBalancerListener
-    Export:
-      Name: !Join [":", [!Ref envType, ElbListener]]
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /demo/elb/listener
+      Type: String
+      Value: !Ref LoadBalancerListener
+      Description: !Join [":", [!Ref envType, ElbListener]]
+
   TargetGroupArn:
-    Description: target group arn
-    Value: !Ref TargetGroup
-    Export:
-      Name: !Join [":", [!Ref envType, TargetGroupArn]]
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /demo/elb/targetgroup
+      Type: String
+      Value: !Ref TargetGroup
+      Description: !Join [":", [!Ref envType, TargetGroupArn]]
+
   ElbSecGroup:
-    Description: Loadbalancer security group
-    Value: !Ref LoadBalancerSecurityGroup
-    Export:
-      Name: !Join [":", [!Ref envType, ElbSecurityGroup]]
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /demo/elb/targetgroup
+      Type: String
+      Value: !Ref LoadBalancerSecurityGroup
+      Description: !Join [":", [!Ref envType, ElbSecurityGroup]]
+
   ContainerSecGroup:
-    Description: Container security group
-    Value: !Ref ContainerSecurityGroup
-    Export:
-      Name: !Join [":", [!Ref envType, ContainerSecurityGroup]]
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /demo/elb/targetgroup
+      Type: String
+      Value: !Ref ContainerSecurityGroup
+      Description: !Join [":", [!Ref envType, ContainerSecurityGroup]]
+
