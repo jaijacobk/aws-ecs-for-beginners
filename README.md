@@ -10,7 +10,8 @@ This project describes the required components to build a containerized applicat
   1. VS Code
   2. Node JS
   3. Docker Desktop
-  3. AWS Account/Credentials
+  4. AWS CLI
+  5. AWS Account/Credentials
 
 
 ---
