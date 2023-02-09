@@ -12,14 +12,14 @@ This project describes the required components to build a containerized applicat
 
 ---
 
-### Step 1: Create working a directory
+### Step 1: Create a working directory
 
 ```
 mkdir my-first-ecs-project
 cd  my-first-ecs-project
 ```
 
-### Step 2: Create a Node Js Project with all the defaults
+### Step 2: Create a Node Js Project
 
 `npm init -y`
 
@@ -106,6 +106,7 @@ http://localhost:8080/heathcheck/
 ### Step 1: Create the Dockerfile
 
 ```
+#Change to your version of the Node
 FROM node:12.22.3
 WORKDIR /usr/src/app
 COPY package*.json ./
@@ -178,3 +179,4 @@ The end point is now accessible via
 
 https://{hostname of the ELB}/healthcheck
 
+![Screenshot](images/ecs_2.jpeg)
