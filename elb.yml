@@ -27,13 +27,7 @@ Parameters:
     Default: /healthcheck
   # HWDomain:
   #   Type: String
-  #   Default: jj7525-s.bindg.com
-  # SslCert:
-  #   Type: String
-  #   Default: arn:aws:acm:us-east-1:417592845839:certificate/6e039166-6b4f-468f-9fd5-840a9f87bfd5 #[edit this]
-
-# Conditions:
-#   IsEast: !Equals [!Ref "AWS::Region", "us-east-1"]
+  #   Default: demo.mycompany.com
 
 Resources:
   LoadBalancer:
@@ -162,7 +156,7 @@ Resources:
   ElbSecGroup:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /demo/elb/targetgroup
+      Name: /demo/elb/sg
       Type: String
       Value: !Ref LoadBalancerSecurityGroup
       Description: !Join [":", [!Ref envType, ElbSecurityGroup]]
@@ -170,7 +164,7 @@ Resources:
   ContainerSecGroup:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /demo/elb/targetgroup
+      Name: /demo/elb/csg
       Type: String
       Value: !Ref ContainerSecurityGroup
       Description: !Join [":", [!Ref envType, ContainerSecurityGroup]]

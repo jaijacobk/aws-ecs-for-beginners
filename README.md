@@ -147,7 +147,7 @@ http://localhost:8080/healthcheck/
 
 ### Step 2: Tag the Image
 
-`docker image tag my-first-ecs-project:latest 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-repo:latest`
+`docker image tag my-first-ecs-project:latest 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld:latest`
 
 ### Step 2: Get the ECR Credentials
 
@@ -157,7 +157,7 @@ This command retrieves and displays an authentication token using the GetAuthori
 
 ### Step 3: Push the image to ECR
 
-`docker push 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-repo:latest`
+`docker push 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld:latest`
 
 ---
 
@@ -169,20 +169,13 @@ This command retrieves and displays an authentication token using the GetAuthori
 
 `aws cloudformation create-stack --stack-name demo-elb-repo --template-body file://elb.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
 
-**- CREATE ECS CLUSTER, ECS SERVICE TASKS ETC**
+### Step 2: Create ECS Cluster, Services and Tasks
 
 Please Make sure to update the
 
 1. Image ID
-2. Container Security Group ID
-3. Load Balancer Security Group ID
-4. Target Group
 
-Before creating the below stack
-
-Then execute the following from the AWS CLI (please make sure to replace {jj7525} with your employee id or someother unique identifier)
-
-`aws cloudformation create-stack --stack-name jj7525-hello-world-ecs-repo --template-body file://ecs.yml --profile saml --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND CAPABILITY_IAM`
+`aws cloudformation create-stack --stack-name demo-ecs-repo --template-body file://ecs.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
 
 ---
 
@@ -194,37 +187,3 @@ The end point is now accessible via
 
 https://{hostname of the ELB}/healthcheck
 
----
-
-- CREATE THE CUSTOM DOMAIN/SSL CERT [THIS IS OPTIONAL]
-
----
-
-**- CREATE A CERTIFCATE**
-
-Please make sure to edit the
-
-1. HostedZoneDomain
-
-Then execute the following from the AWS CLI (please make sure to replace {jj7525} with your employee id or someother unique identifier)
-
-`aws cloudformation create-stack --stack-name jj7525-hello-world-cert-repo --template-body file://cert.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
-
-**- Update the Load Balancer to use the newwly created custom hostmane and SSL Cert**
-Please Make sure to update the
-
-1. SSL Certificate ARN
-2. Uncomment HWDomain
-3. Uncomment the Conditions
-4. Change the LoadBalancerPort Port from 80 to 443
-5. Change the LoadBalancerListener Protocol from HTTP to HTTPS
-6. Uncomment the DNSRecord block
-
-Then execute the following from the AWS CLI (please make sure to replace {jj7525} with your employee id or someother unique identifier)
-
-`aws cloudformation update-stack --stack-name jj7525-hello-world-elb-repo --template-body file://elb.yml --profile saml --capabilities CAPABILITY_AUTO_EXPAND`
-
-The end point are is now accessible via
-
-https://jj7525-s.bindg.com
-https://jj7525-s.bindg.com/healthcheck
