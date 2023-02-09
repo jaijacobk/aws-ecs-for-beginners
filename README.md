@@ -142,17 +142,17 @@ http://localhost:8080/healthcheck/
 
 ### Step 2: Tag the Image
 
-`docker image tag my-first-ecs-project:latest 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld:latest`
+`docker image tag my-first-ecs-project:latest {your_account_id}.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld:latest`
 
 ### Step 2: Get the ECR Credentials
 
-`aws ecr get-login-password --profile saml | docker login --username AWS --password-stdin 417592845839.dkr.ecr.us-east-1.amazonaws.com`
+`aws ecr get-login-password --profile saml | docker login --username AWS --password-stdin {your_account_id}.dkr.ecr.us-east-1.amazonaws.com`
 
 This command retrieves and displays an authentication token using the GetAuthorizationToken API that you can use to authenticate to an Amazon ECR registry
 
 ### Step 3: Push the image to ECR
 
-`docker push 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld:latest`
+`docker push {your_account_id}.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld:latest`
 
 ---
 

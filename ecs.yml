@@ -32,7 +32,7 @@ Parameters:
   #   Default: 50
   ImageId:
     Type: String
-    Default: 417592845839.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld-repo:latest #[edit this]
+    Default: {your_account_id}.dkr.ecr.us-east-1.amazonaws.com/demo-ecr-dev-hworld-repo:latest #[edit this]
 
 Resources:
   Cluster:
