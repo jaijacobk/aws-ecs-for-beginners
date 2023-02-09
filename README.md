@@ -6,6 +6,13 @@ This project describes the required components to build a containerized applicat
 
 ![Screenshot](images/ecs_1.jpeg)
 
+### Prerequisites
+  1. VS Code
+  2. Node JS
+  3. Docker Desktop
+  3. AWS Account
+
+
 ---
 
     GET YOUR APPLICATION READY!
