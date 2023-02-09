@@ -179,4 +179,4 @@ The end point is now accessible via
 
 https://{hostname of the ELB}/healthcheck
 
-![Screenshot](images/ecs_2.jpeg)
+![Screenshot](images/ecs_2.png)
