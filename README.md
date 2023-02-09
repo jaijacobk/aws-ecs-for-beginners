@@ -2,13 +2,13 @@
 
 AWS Fargate is a technology that you can use with Amazon ECS to run containers without having to manage servers or clusters of Amazon EC2 instances. With Fargate, you no longer have to provision, configure, or scale clusters of virtual machines to run containers. This removes the need to choose server types, decide when to scale your clusters, or optimize cluster packing.
 
-This project describes the required components to build a containerized applicattion with ECS. Please follow the below step by step instructions to create one.
+This project describes the required components to build a containerized application with ECS. Please follow the below step by step instructions to create one.
 
 ![Screenshot](images/ecs_1.jpeg)
 
 ---
 
-      Basic Infrastructure Setup
+    GET YOUR APPLICATION READY!
 
 ---
 
@@ -44,12 +44,6 @@ app.listen(8080, () => {
 ### Step 5: Start the Server
 `node server.js`
 
-You may do the following to release the port if the port 8080 is already in use
-
-```
-sudo lsof -i :8080
-sudo kill -9 PID
-```
 
 http://localhost:8080/
 
