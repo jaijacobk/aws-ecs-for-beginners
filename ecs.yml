@@ -4,13 +4,13 @@ Description: >-
   The Hello World ECS Repo
 
 Parameters:
-  orgUnit:
+  OU:
     Type: String
     Default: demo
-  envType:
+  PlatForm:
     Type: String
     Default: dev
-  appCode:
+  Project:
     Type: String
     Default: hworld
   ServiceName:
@@ -38,12 +38,12 @@ Resources:
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub ${orgUnit}-ecs-${envType}-${appCode}-cluster
+      ClusterName: !Sub ${OU}-ecs-${PlatForm}-${Project}-cluster
 
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub ${orgUnit}-ecs-${envType}-log-group
+      LogGroupName: !Sub ${OU}-ecs-${PlatForm}-log-group
 
   Service:
     Type: AWS::ECS::Service
@@ -81,7 +81,7 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       # Name of the task definition. Subsequent versions of the task definition are grouped together under this name.
-      Family: !Sub ${orgUnit}-ecs-${envType}-${appCode}-task-definition
+      Family: !Sub ${OU}-ecs-${PlatForm}-${Project}-task-definition
       # The valid values are none, bridge, awsvpc, and host. The default Docker network mode is bridge.
       # If you are using the Fargate launch type, the awsvpc network mode is required
       NetworkMode: awsvpc
@@ -122,7 +122,7 @@ Resources:
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${orgUnit}-iam-${envType}-${appCode}-${AWS::Region}-ecs-task-exe-role
+      RoleName: !Sub ${OU}-iam-${PlatForm}-${Project}-${AWS::Region}-ecs-task-exe-role
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -132,7 +132,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Policies:
-        - PolicyName: !Sub ${orgUnit}-iam-${envType}-${appCode}-ecs-task-exe-policy
+        - PolicyName: !Sub ${OU}-iam-${PlatForm}-${Project}-ecs-task-exe-policy
           PolicyDocument:
             Version: "2012-10-17"
             Statement:

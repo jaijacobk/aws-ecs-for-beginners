@@ -3,13 +3,13 @@ Transform: AWS::Serverless-2016-10-31
 Description: >-
   The Hello World ECR Repo
 Parameters:
-  orgUnit:
+  OU:
     Type: String
     Default: demo
-  envType:
+  PlatForm:
     Type: String
     Default: dev
-  appCode:
+  Project:
     Type: String
     Default: hworld
 
@@ -17,7 +17,7 @@ Resources:
   HWorldEcrRepo:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub ${orgUnit}-ecr-${envType}-${appCode}-repo
+      RepositoryName: !Sub ${OU}-ecr-${PlatForm}-${Project}-repo
 
 Outputs:
   HWorldEcrRepoArn:

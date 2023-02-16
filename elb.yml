@@ -4,13 +4,13 @@ Description: >-
   The Hello World ELB Repo
 
 Parameters:
-  orgUnit:
+  OU:
     Type: String
     Default: demo
-  envType:
+  PlatForm:
     Type: String
     Default: dev
-  appCode:
+  Project:
     Type: String
     Default: hworld
   ServiceName:
@@ -37,7 +37,7 @@ Resources:
         # this is the default, but is specified here in case it needs to be changed
         - Key: idle_timeout.timeout_seconds
           Value: "60"
-      Name: !Join ["-", [!Ref orgUnit, !Ref ServiceName, elb]]
+      Name: !Join ["-", [!Ref OU, !Ref ServiceName, elb]]
       # Scheme: internal
       Scheme: internet-facing
       SecurityGroups:
@@ -50,7 +50,7 @@ Resources:
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub ${orgUnit}-ecs-${envType}-${appCode}-lb-sec-group
+      GroupDescription: !Sub ${OU}-ecs-${PlatForm}-${Project}-lb-sec-group
       VpcId: !ImportValue inf-vpc
       # SecurityGroupEgress: #An outbound rule permits instances to send traffic to the specified destination IPv4 or IPv6 CIDR address ranges
       #   - IpProtocol: "-1"
@@ -66,7 +66,7 @@ Resources:
   ContainerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub ${orgUnit}-ecs-${envType}-${appCode}-cont-sec-group
+      GroupDescription: !Sub ${OU}-ecs-${PlatForm}-${Project}-cont-sec-group
       VpcId: !ImportValue inf-vpc
       # SecurityGroupEgress:
       #   - IpProtocol: "-1"
@@ -125,7 +125,7 @@ Resources:
   #       DNSName: !GetAtt LoadBalancer.DNSName
   #       HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
   #       EvaluateTargetHealth: true
-  #     SetIdentifier: !Sub ${orgUnit}-${appCode}-rt53-${envType}-${AWS::Region}
+  #     SetIdentifier: !Sub ${OU}-${Project}-rt53-${PlatForm}-${AWS::Region}
   #     #For one resource record set, you specify PRIMARY as the value for Failover; for the other resource record set, you specify SECONDARY
   #     Failover: !If [IsEast, PRIMARY, SECONDARY]
 
@@ -135,7 +135,7 @@ Resources:
       Name: /demo/elb/dns
       Type: String
       Value: !GetAtt LoadBalancer.DNSName
-      Description: !Join [":", [!Ref envType, ElbDomianName]]
+      Description: !Join [":", [!Ref PlatForm, ElbDomianName]]
 
   ElbListener:
     Type: AWS::SSM::Parameter
@@ -143,7 +143,7 @@ Resources:
       Name: /demo/elb/listener
       Type: String
       Value: !Ref LoadBalancerListener
-      Description: !Join [":", [!Ref envType, ElbListener]]
+      Description: !Join [":", [!Ref PlatForm, ElbListener]]
 
   TargetGroupArn:
     Type: AWS::SSM::Parameter
@@ -151,7 +151,7 @@ Resources:
       Name: /demo/elb/targetgroup
       Type: String
       Value: !Ref TargetGroup
-      Description: !Join [":", [!Ref envType, TargetGroupArn]]
+      Description: !Join [":", [!Ref PlatForm, TargetGroupArn]]
 
   ElbSecGroup:
     Type: AWS::SSM::Parameter
@@ -159,7 +159,7 @@ Resources:
       Name: /demo/elb/sg
       Type: String
       Value: !Ref LoadBalancerSecurityGroup
-      Description: !Join [":", [!Ref envType, ElbSecurityGroup]]
+      Description: !Join [":", [!Ref PlatForm, ElbSecurityGroup]]
 
   ContainerSecGroup:
     Type: AWS::SSM::Parameter
@@ -167,5 +167,5 @@ Resources:
       Name: /demo/elb/csg
       Type: String
       Value: !Ref ContainerSecurityGroup
-      Description: !Join [":", [!Ref envType, ContainerSecurityGroup]]
+      Description: !Join [":", [!Ref PlatForm, ContainerSecurityGroup]]
 
